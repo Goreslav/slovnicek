@@ -35,10 +35,7 @@
         </div>
       </RecycleScroller>
     </div>
-
-    <footer class="footer">
-      <p>© 2024 My Word List App</p>
-    </footer>
+    <Footer/>
   </div>
 </template>
 
@@ -48,8 +45,10 @@ import { fetchWords, addWord, removeWord } from '@/services/api';
 import { throttle } from 'lodash';
 import { RecycleScroller } from 'vue-virtual-scroller';
 const Modal = () => import('@/components/Modal.vue');
+const Footer = () => import('@/components/Footer.vue');
 export default {
   components: {
+    Footer,
     Modal,
     RecycleScroller
   },
@@ -84,9 +83,7 @@ export default {
               this.saveWords();
               this.$refs.wordModal.close();
             })
-            .catch(error => {
-              // console.error('Error adding word:', error);
-            });
+            .catch();
       }
     },
     confirmDelete(index) {
@@ -113,13 +110,11 @@ export default {
             this.saveWords();
             Swal.fire('Deleted!', 'The word has been deleted.', 'success');
           })
-          .catch(error => {
-            // console.error('Error removing word:', error);
-          });
+          .catch();
     },
-    saveWords: throttle(function() {
+    saveWords() {
       localStorage.setItem('words', JSON.stringify(this.words));
-    }, 1000),
+    },
 
     onDragStart(index) {
       this.draggedIndex = index;
@@ -128,25 +123,31 @@ export default {
       const draggedWord = this.words[this.draggedIndex];
       this.words.splice(this.draggedIndex, 1);
       this.words.splice(index, 0, draggedWord);
-      this.saveWords();
-    }
+
+      this.saveWordsThrottled();
+    },
+    saveWordsThrottled: throttle(function() {
+      localStorage.setItem('words', JSON.stringify(this.words));
+    }, 1000)
   },
   created() {
-    fetchWords()
-        .then(response => {
-          this.words = response.data;
-          this.saveWords();
-        })
-        .catch(error => {
-          // console.error('Error fetching words:', error);
-        });
+    const savedWords = localStorage.getItem('words');
+
+    if (savedWords) {
+      this.words = JSON.parse(savedWords);
+    } else {
+      fetchWords()
+          .then(response => {
+            this.words = response.data;
+            this.saveWords();
+          })
+          .catch();
+    }
   }
 };
 </script>
 
-<!-- Upravené štýly -->
 <style scoped>
-/* Fixované tlačidlo pre pridanie nového slova */
 .add-word-btn {
   position: fixed;
   top: 20px;
@@ -164,18 +165,16 @@ export default {
   background-color: #0056b3;
 }
 
-/* Kontejner pre word-list s dynamickou výškou, minus výška tlačidla a footeru */
 .word-list-container {
   padding: 20px;
-  height: calc(100vh - 60px - 50px); /* Výška obrazovky - výška tlačidla (60px) - výška footeru (50px) */
+  height: calc(100vh - 60px - 50px);
   overflow-y: auto;
 }
 
 .scroller {
-  height: 100%; /* Nastavenie plnej výšky pre skrolovač */
+  height: 100%;
 }
 
-/* Štýl pre jednotlivé slová s medzerami medzi nimi */
 .word-item {
   display: flex;
   justify-content: space-between;
@@ -183,10 +182,9 @@ export default {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   cursor: move;
-  margin-bottom: 10px; /* Pridanie medzery medzi položkami */
+  margin-bottom: 10px;
 }
 
-/* Štýly pre tlačidlo */
 button {
   background-color: #007bff;
   color: white;
@@ -199,16 +197,4 @@ button {
 button:hover {
   background-color: #0056b3;
 }
-
-/* Generický footer */
-.footer {
-  text-align: center;
-  padding: 20px;
-  background-color: #f8f9fa;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 50px; /* Pevná výška footeru */
-}
-
 </style>
