@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="openModal">Add New Word</button>
+    <button v-once class="add-word-btn" @click="openModal">Add New Word</button>
     <Modal ref="wordModal">
       <form @submit.prevent="addWord">
         <input v-model="newWord.word" placeholder="Enter a new word" />
@@ -9,34 +9,49 @@
         <button type="submit">Add Word</button>
       </form>
     </Modal>
-    <div class="word-list">
-      <div
-          v-for="(word, index) in words"
-          :key="word.id"
-          class="word-item"
-          draggable="true"
-          @dragstart="onDragStart(index)"
-          @dragover.prevent
-          @drop="onDrop(index)"
+
+    <div class="word-list-container">
+      <RecycleScroller
+          class="scroller"
+          :items="words"
+          :item-size="80"
+          :buffer="200"
+          :prerender="10"
+          key-field="id"
+          v-slot="{ item, index }"
       >
-        <div>
-          <strong>{{ word.word }}</strong> - {{ word.translation }} <br />
-          <small>{{ word.description }}</small>
+        <div
+            class="word-item"
+            draggable="true"
+            @dragstart="onDragStart(index)"
+            @dragover.prevent
+            @drop="onDrop(index)"
+        >
+          <div>
+            <strong>{{ item.word }}</strong> - {{ item.translation }} <br />
+            <small>{{ item.description }}</small>
+          </div>
+          <button @click="confirmDelete(index)">X</button>
         </div>
-        <button @click="confirmDelete(index)">X</button>
-      </div>
+      </RecycleScroller>
     </div>
+
+    <footer class="footer">
+      <p>© 2024 My Word List App</p>
+    </footer>
   </div>
 </template>
 
 <script>
-import Modal from '@/components/Modal.vue';
 import Swal from 'sweetalert2';
 import { fetchWords, addWord, removeWord } from '@/services/api';
-
+import { throttle } from 'lodash';
+import { RecycleScroller } from 'vue-virtual-scroller';
+const Modal = () => import('@/components/Modal.vue');
 export default {
   components: {
-    Modal
+    Modal,
+    RecycleScroller
   },
   data() {
     return {
@@ -70,7 +85,7 @@ export default {
               this.$refs.wordModal.close();
             })
             .catch(error => {
-              console.error('Error adding word:', error);
+              // console.error('Error adding word:', error);
             });
       }
     },
@@ -99,13 +114,13 @@ export default {
             Swal.fire('Deleted!', 'The word has been deleted.', 'success');
           })
           .catch(error => {
-            console.error('Error removing word:', error);
+            // console.error('Error removing word:', error);
           });
     },
-    saveWords() {
-      console.log(this.words)
+    saveWords: throttle(function() {
       localStorage.setItem('words', JSON.stringify(this.words));
-    },
+    }, 1000),
+
     onDragStart(index) {
       this.draggedIndex = index;
     },
@@ -123,36 +138,77 @@ export default {
           this.saveWords();
         })
         .catch(error => {
-          console.error('Error fetching words:', error);
+          // console.error('Error fetching words:', error);
         });
   }
 };
 </script>
 
-<style lang="sass" scoped>
-.word-list
-  display: flex
-  flex-direction: column
-  gap: 10px
-  max-height: 80vh
-  overflow-y: auto
+<!-- Upravené štýly -->
+<style scoped>
+/* Fixované tlačidlo pre pridanie nového slova */
+.add-word-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;
+}
 
-.word-item
-  display: flex
-  justify-content: space-between
-  padding: 10px
-  background-color: #f0f0f0
-  border: 1px solid #ccc
-  cursor: move
+.add-word-btn:hover {
+  background-color: #0056b3;
+}
 
-button
-  background-color: #007bff
-  color: white
-  padding: 5px 10px
-  border: none
-  border-radius: 3px
-  cursor: pointer
+/* Kontejner pre word-list s dynamickou výškou, minus výška tlačidla a footeru */
+.word-list-container {
+  padding: 20px;
+  height: calc(100vh - 60px - 50px); /* Výška obrazovky - výška tlačidla (60px) - výška footeru (50px) */
+  overflow-y: auto;
+}
 
-  &:hover
-    background-color: #0056b3
+.scroller {
+  height: 100%; /* Nastavenie plnej výšky pre skrolovač */
+}
+
+/* Štýl pre jednotlivé slová s medzerami medzi nimi */
+.word-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: move;
+  margin-bottom: 10px; /* Pridanie medzery medzi položkami */
+}
+
+/* Štýly pre tlačidlo */
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Generický footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 50px; /* Pevná výška footeru */
+}
+
 </style>
