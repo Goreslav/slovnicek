@@ -41,3 +41,4 @@ export default {
   border: none
   font-size: 20px
   cursor: pointer
+</style>

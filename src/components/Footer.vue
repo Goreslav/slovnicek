@@ -1,11 +1,10 @@
 <template>
   <footer class="footer">
-    <p>© {{ currentYear }} My Word List App</p>
+    <p>© {{ new Date().getFullYear() }} My Word List App</p>
   </footer>
 </template>
 
-<script setup>
-const currentYear = new Date().getFullYear();
+<script>
 </script>
 
 <style scoped>

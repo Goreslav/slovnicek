@@ -27,8 +27,9 @@
             @dragover.prevent
             @drop="onDrop(index)"
         >
-          <div>
-            <strong>{{ item.word }}</strong> - {{ item.translation }} <br />
+          <div class="box">
+            <strong>{{ item.word }}</strong>
+            <i>{{ item.translation }}</i>
             <small>{{ item.description }}</small>
           </div>
           <button @click="confirmDelete(index)">X</button>
@@ -167,7 +168,7 @@ export default {
 
 .word-list-container {
   padding: 20px;
-  height: calc(100vh - 60px - 50px);
+  height: calc(100vh - 100px - 100px);
   overflow-y: auto;
 }
 
@@ -183,6 +184,12 @@ export default {
   border: 1px solid #ccc;
   cursor: move;
   margin-bottom: 10px;
+  .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
 }
 
 button {
