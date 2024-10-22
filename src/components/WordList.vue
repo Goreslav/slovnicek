@@ -12,6 +12,7 @@
 
     <div class="word-list-container">
       <RecycleScroller
+          ref="scroller"
           class="scroller"
           :items="words"
           :item-size="80"
@@ -22,6 +23,7 @@
       >
         <div
             class="word-item"
+            :class="{ dragging: draggedIndex === index }"
             draggable="true"
             @dragstart="onDragStart(index)"
             @dragover.prevent
@@ -47,6 +49,7 @@ import { throttle } from 'lodash';
 import { RecycleScroller } from 'vue-virtual-scroller';
 const Modal = () => import('@/components/Modal.vue');
 const Footer = () => import('@/components/Footer.vue');
+
 export default {
   components: {
     Footer,
@@ -61,7 +64,8 @@ export default {
         translation: "",
         description: ""
       },
-      draggedIndex: null
+      draggedIndex: null,
+      targetIndex: null
     };
   },
   methods: {
@@ -80,7 +84,7 @@ export default {
             .then(response => {
               newWordObject.id = response.data.id;
               this.words.push(newWordObject);
-              this.newWord = { word: "", translation: "", description: "" };
+              this.newWord = {word: "", translation: "", description: ""};
               this.saveWords();
               this.$refs.wordModal.close();
             })
@@ -117,17 +121,50 @@ export default {
       localStorage.setItem('words', JSON.stringify(this.words));
     },
 
+    // Drag and Drop methods
     onDragStart(index) {
       this.draggedIndex = index;
+
+      // Add global event listeners for drag and drop
+      window.addEventListener('dragover', this.onDragOver);
+      window.addEventListener('drop', this.onDropGlobal);
+    },
+    onDragOver(event) {
+      const scrollerRect = this.$refs.scroller.$el.getBoundingClientRect();
+      const relativeY = event.clientY - scrollerRect.top;
+
+      // Calculate approximate target index based on Y position
+      const approximateIndex = Math.floor(relativeY / 80); // assuming 80px per item height
+      const boundedIndex = Math.max(0, Math.min(this.words.length - 1, approximateIndex));
+
+      this.targetIndex = boundedIndex;
+    },
+    onDropGlobal(event) {
+      if (this.draggedIndex !== null && this.targetIndex !== null) {
+        const draggedWord = this.words[this.draggedIndex];
+        this.words.splice(this.draggedIndex, 1);
+        this.words.splice(this.targetIndex, 0, draggedWord);
+
+        this.saveWordsThrottled();
+
+        // Reset the drag state
+        this.draggedIndex = null;
+        this.targetIndex = null;
+      }
+
+      // Remove global event listeners
+      window.removeEventListener('dragover', this.onDragOver);
+      window.removeEventListener('drop', this.onDropGlobal);
     },
     onDrop(index) {
+      // Standard drop logic when the drop happens within the rendered component
       const draggedWord = this.words[this.draggedIndex];
       this.words.splice(this.draggedIndex, 1);
       this.words.splice(index, 0, draggedWord);
 
       this.saveWordsThrottled();
     },
-    saveWordsThrottled: throttle(function() {
+    saveWordsThrottled: throttle(function () {
       localStorage.setItem('words', JSON.stringify(this.words));
     }, 1000)
   },
@@ -184,12 +221,18 @@ export default {
   border: 1px solid #ccc;
   cursor: move;
   margin-bottom: 10px;
-  .box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
+}
+
+.word-item.dragging {
+  opacity: 0.5;
+  border: 2px dashed #007bff;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 button {

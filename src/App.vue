@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <WordList msg="Welcome to Your Vue.js App"/>
+    <div id="modals"></div>
+    <WordList/>
   </div>
 </template>
 

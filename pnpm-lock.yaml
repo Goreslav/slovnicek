@@ -20,6 +20,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      portal-vue:
+        specifier: ^3.0.0
+        version: 3.0.0(vue@2.7.16)
       sweetalert2:
         specifier: ^11.14.4
         version: 11.14.4
@@ -3817,6 +3820,15 @@ packages:
   pluralize@7.0.0:
     resolution: {integrity: sha512-ARhBOdzS3e41FbkW/XWrTEtukqqLoK5+Z/4UeDaLuSW+39JPeFgs4gCGqsrJHVZX0fUrx//4OF0K1CUGwlIFow==}
     engines: {node: '>=4'}
+
+  portal-vue@3.0.0:
+    resolution: {integrity: sha512-9eprMxNURLx6ijbcgkWjYNcTWJYu/H8QF8nyAeBzOmk9lKCea01BW1hYBeLkgz+AestmPOvznAEOFmNuO4Adjw==}
+    engines: {node: '>=14.19'}
+    peerDependencies:
+      vue: ^3.0.4
+    peerDependenciesMeta:
+      vue:
+        optional: true
 
   portfinder@1.0.32:
     resolution: {integrity: sha512-on2ZJVVDXRADWE6jnQaX0ioEylzgBpQk8r55NE4wjXW1ZxO+BgDlY6DXwj20i0V8eB4SenDQ00WEaxfiIQPcxg==}
@@ -9727,6 +9739,10 @@ snapshots:
       find-up: 2.1.0
 
   pluralize@7.0.0: {}
+
+  portal-vue@3.0.0(vue@2.7.16):
+    optionalDependencies:
+      vue: 2.7.16
 
   portfinder@1.0.32(supports-color@6.1.0):
     dependencies:
