@@ -6,12 +6,12 @@ module.exports = {
         useBuiltIns: 'entry',
         corejs: 3,
         targets: {
-          ie: '11',
           browsers: [
-            '> 1%',
+            '> 0.25%',
             'last 2 versions',
             'not dead',
-            'ie 11'
+            'ie 11',
+            'safari >= 10'
           ]
         }
       }
