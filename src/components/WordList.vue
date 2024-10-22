@@ -9,9 +9,16 @@
         <button type="submit">Add Word</button>
       </form>
     </Modal>
-
     <div class="word-list">
-      <div v-for="(word, index) in words" :key="word.id" class="word-item">
+      <div
+          v-for="(word, index) in words"
+          :key="word.id"
+          class="word-item"
+          draggable="true"
+          @dragstart="onDragStart(index)"
+          @dragover.prevent
+          @drop="onDrop(index)"
+      >
         <div>
           <strong>{{ word.word }}</strong> - {{ word.translation }} <br />
           <small>{{ word.description }}</small>
@@ -38,7 +45,8 @@ export default {
         word: "",
         translation: "",
         description: ""
-      }
+      },
+      draggedIndex: null
     };
   },
   methods: {
@@ -57,7 +65,7 @@ export default {
             .then(response => {
               newWordObject.id = response.data.id;
               this.words.push(newWordObject);
-              this.newWord = {word: "", translation: "", description: ""};
+              this.newWord = { word: "", translation: "", description: "" };
               this.saveWords();
               this.$refs.wordModal.close();
             })
@@ -88,18 +96,24 @@ export default {
           .then(() => {
             this.words.splice(index, 1);
             this.saveWords();
-            Swal.fire(
-                'Deleted!',
-                'The word has been deleted.',
-                'success'
-            );
+            Swal.fire('Deleted!', 'The word has been deleted.', 'success');
           })
           .catch(error => {
             console.error('Error removing word:', error);
           });
     },
     saveWords() {
+      console.log(this.words)
       localStorage.setItem('words', JSON.stringify(this.words));
+    },
+    onDragStart(index) {
+      this.draggedIndex = index;
+    },
+    onDrop(index) {
+      const draggedWord = this.words[this.draggedIndex];
+      this.words.splice(this.draggedIndex, 1);
+      this.words.splice(index, 0, draggedWord);
+      this.saveWords();
     }
   },
   created() {
