@@ -1,8 +1,8 @@
 <template>
   <dialog ref="dialog" class="modal">
+    <button @click="close" class="close-button">X</button>
     <div class="modal-header">
       <h3>Add New Word</h3>
-      <button @click="close" class="close-button">X</button>
     </div>
     <slot></slot>
   </dialog>
@@ -15,6 +15,7 @@ export default {
       this.$refs.dialog.showModal();
     },
     close() {
+      console.log('sss')
       this.$refs.dialog.close();
     }
   }
@@ -22,34 +23,33 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.modal-container
-  position: fixed
-  top: 50%
-  left: 50%
-  transform: translate(-50%, -50%)
-  background-color: white
-  padding: 20px
-  border-radius: 8px
-  z-index: 1001
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1)
+.modal-header
+  display: flex
+  justify-content: center
+  align-items: center
+  border-bottom: 1px solid #eee
+  padding-bottom: 10px
+  margin-bottom: 15px
 
-  .modal
-    padding: 20px
-    border-radius: 5px
-    background-color: white
-    width: 400px
+.close-button
+  background: none
+  border: none
+  font-size: 20px
+  cursor: pointer
+  color: #333
+  display: flex
+
+  &:hover
+    color: lightskyblue
+
+.modal-footer
+  button
+    padding: 8px 12px
+    border-radius: 50%
     border: none
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2)
-    position: relative
+    cursor: pointer
 
-    .modal-header
-      display: flex
-      justify-content: space-between
-      align-items: center
-
-    .close-button
-      background: none
-      border: none
-      font-size: 20px
-      cursor: pointer
+    &:hover
+      background-color: gray
 </style>
+

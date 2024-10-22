@@ -2,7 +2,7 @@
   <div>
     <button v-once class="add-word-btn" @click="openModal">Add New Word</button>
     <Modal ref="wordModal">
-      <form @submit.prevent="addWord">
+      <form @submit.prevent="addWord" class="form">
         <input v-model="newWord.word" placeholder="Enter a new word" />
         <input v-model="newWord.translation" placeholder="Enter a translation" />
         <input v-model="newWord.description" placeholder="Enter a description" />
@@ -30,9 +30,9 @@
             @drop="onDrop(index)"
         >
           <div class="box">
-            <strong>{{ item.word }}</strong>
-            <i>{{ item.translation }}</i>
-            <small>{{ item.description }}</small>
+            <span>word: <strong>{{ item.word }}</strong></span>
+            <span>translation: <i>{{ item.translation }}</i></span>
+            <span>meaning: <small>{{ item.description }}</small></span>
           </div>
           <button @click="confirmDelete(index)">X</button>
         </div>
@@ -89,6 +89,7 @@ export default {
               this.$refs.wordModal.close();
             })
             .catch();
+
       }
     },
     confirmDelete(index) {
@@ -185,66 +186,67 @@ export default {
 };
 </script>
 
-<style scoped>
-.add-word-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 1000;
-}
+<style lang="sass" scoped>
+.add-word-btn
+  position: fixed
+  top: 20px
+  left: 20px
+  background-color: #007bff
+  color: white
+  padding: 10px 15px
+  border: none
+  border-radius: 5px
+  cursor: pointer
+  z-index: 1000
 
-.add-word-btn:hover {
-  background-color: #0056b3;
-}
+  &:hover
+    background-color: #0056b3
 
-.word-list-container {
-  padding: 20px;
-  height: calc(100vh - 100px - 100px);
-  overflow-y: auto;
-}
+.word-list-container
+  padding: 20px
+  height: calc(100vh - 100px - 100px)
+  overflow-y: auto
 
-.scroller {
-  height: 100%;
-}
+.scroller
+  height: 100%
 
-.word-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  cursor: move;
-  margin-bottom: 10px;
-}
+.word-item
+  display: flex
+  justify-content: space-between
+  padding: 10px
+  background-color: #f0f0f0
+  border: 1px solid #ccc
+  cursor: move
+  margin-bottom: 10px
 
-.word-item.dragging {
-  opacity: 0.5;
-  border: 2px dashed #007bff;
-}
+  &.dragging
+    opacity: 0.5
+    border: 2px dashed #007bff
 
-.box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
+.box
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 10px
 
-button {
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
+button
+  background-color: #007bff
+  color: white
+  padding: 5px 10px
+  border: none
+  border-radius: 3px
+  cursor: pointer
 
-button:hover {
-  background-color: #0056b3;
-}
+  &:hover
+    background-color: #0056b3
+
+.form
+  display: flex
+  flex-direction: column
+  gap: 20px
+
+  input
+    padding: 10px
+    border-radius: 10px
+
 </style>
