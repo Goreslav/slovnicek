@@ -140,25 +140,20 @@ export default {
 
       this.targetIndex = boundedIndex;
     },
-    onDropGlobal(event) {
+    onDropGlobal() {
       if (this.draggedIndex !== null && this.targetIndex !== null) {
         const draggedWord = this.words[this.draggedIndex];
         this.words.splice(this.draggedIndex, 1);
         this.words.splice(this.targetIndex, 0, draggedWord);
 
         this.saveWordsThrottled();
-
-        // Reset the drag state
         this.draggedIndex = null;
         this.targetIndex = null;
       }
-
-      // Remove global event listeners
       window.removeEventListener('dragover', this.onDragOver);
       window.removeEventListener('drop', this.onDropGlobal);
     },
     onDrop(index) {
-      // Standard drop logic when the drop happens within the rendered component
       const draggedWord = this.words[this.draggedIndex];
       this.words.splice(this.draggedIndex, 1);
       this.words.splice(index, 0, draggedWord);

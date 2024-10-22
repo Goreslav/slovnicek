@@ -15,7 +15,6 @@ export default {
       this.$refs.dialog.showModal();
     },
     close() {
-      console.log('sss')
       this.$refs.dialog.close();
     }
   }
