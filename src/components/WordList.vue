@@ -3,9 +3,9 @@
     <button v-once class="add-word-btn" @click="openModal">Add New Word</button>
     <Modal ref="wordModal">
       <form @submit.prevent="addWord" class="form">
-        <input v-model="newWord.word" placeholder="Enter a new word"/>
-        <input v-model="newWord.translation" placeholder="Enter a translation"/>
-        <input v-model="newWord.description" placeholder="Enter a description"/>
+        <input v-model="newWord.word" placeholder="Enter a new word" />
+        <input v-model="newWord.translation" placeholder="Enter a translation" />
+        <input v-model="newWord.description" placeholder="Enter a description" />
         <button type="submit">Add Word</button>
       </form>
     </Modal>
@@ -38,23 +38,20 @@
         </div>
       </RecycleScroller>
     </div>
-    <Footer/>
+    <Footer />
   </div>
 </template>
 
 <script>
 import Swal from 'sweetalert2';
-import {addWord, fetchWords, removeWord} from '@/services/api';
-import {throttle} from 'lodash';
-import {RecycleScroller} from 'vue-virtual-scroller';
-
-const Modal = () => import('@/components/Modal.vue');
-const Footer = () => import('@/components/Footer.vue');
+import { addWord, fetchWords, removeWord } from '@/services/api';
+import { throttle } from 'lodash';
+import { RecycleScroller } from 'vue-virtual-scroller';
 
 export default {
   components: {
-    Footer,
-    Modal,
+    Footer: () => import('@/components/Footer.vue'),
+    Modal: () => import('@/components/Modal.vue'),
     RecycleScroller,
   },
   data() {
@@ -101,7 +98,7 @@ export default {
             .then(response => {
               newWordObject.id = response.data.id;
               this.words.unshift(newWordObject);
-              this.newWord = {word: '', translation: '', description: ''};
+              this.newWord = { word: '', translation: '', description: '' };
               this.saveWords();
               this.$refs.wordModal.close();
             })
@@ -248,5 +245,4 @@ button
   input
     padding: 10px
     border-radius: 10px
-
 </style>
