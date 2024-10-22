@@ -3,9 +3,9 @@
     <button v-once class="add-word-btn" @click="openModal">Add New Word</button>
     <Modal ref="wordModal">
       <form @submit.prevent="addWord" class="form">
-        <input v-model="newWord.word" placeholder="Enter a new word" />
-        <input v-model="newWord.translation" placeholder="Enter a translation" />
-        <input v-model="newWord.description" placeholder="Enter a description" />
+        <input v-model="newWord.word" placeholder="Enter a new word"/>
+        <input v-model="newWord.translation" placeholder="Enter a translation"/>
+        <input v-model="newWord.description" placeholder="Enter a description"/>
         <button type="submit">Add Word</button>
       </form>
     </Modal>
@@ -44,9 +44,10 @@
 
 <script>
 import Swal from 'sweetalert2';
-import { fetchWords, addWord, removeWord } from '@/services/api';
-import { throttle } from 'lodash';
-import { RecycleScroller } from 'vue-virtual-scroller';
+import {addWord, fetchWords, removeWord} from '@/services/api';
+import {throttle} from 'lodash';
+import {RecycleScroller} from 'vue-virtual-scroller';
+
 const Modal = () => import('@/components/Modal.vue');
 const Footer = () => import('@/components/Footer.vue');
 
@@ -54,19 +55,35 @@ export default {
   components: {
     Footer,
     Modal,
-    RecycleScroller
+    RecycleScroller,
   },
   data() {
     return {
       words: [],
       newWord: {
-        word: "",
-        translation: "",
-        description: ""
+        word: '',
+        translation: '',
+        description: '',
       },
       draggedIndex: null,
-      targetIndex: null
+      targetIndex: null,
     };
+  },
+  created() {
+    const savedWords = localStorage.getItem('words');
+    if (savedWords) {
+      this.words = JSON.parse(savedWords);
+    } else {
+      fetchWords()
+          .then(response => {
+            this.words = response.data;
+            this.saveWords();
+          })
+          .catch(error => {
+            // eslint-disable-next-line no-console
+            console.error(error);
+          });
+    }
   },
   methods: {
     openModal() {
@@ -77,19 +94,21 @@ export default {
         const newWordObject = {
           word: this.newWord.word,
           translation: this.newWord.translation,
-          description: this.newWord.description || ""
+          description: this.newWord.description || '',
         };
 
         addWord(newWordObject)
             .then(response => {
               newWordObject.id = response.data.id;
               this.words.unshift(newWordObject);
-              this.newWord = {word: "", translation: "", description: ""};
+              this.newWord = {word: '', translation: '', description: ''};
               this.saveWords();
               this.$refs.wordModal.close();
             })
-            .catch();
-
+            .catch(error => {
+              // eslint-disable-next-line no-console
+              console.error(error);
+            });
       }
     },
     confirmDelete(index) {
@@ -101,8 +120,8 @@ export default {
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
+        cancelButtonText: 'Cancel',
+      }).then(result => {
         if (result.isConfirmed) {
           this.removeWord(index);
         }
@@ -116,17 +135,16 @@ export default {
             this.saveWords();
             Swal.fire('Deleted!', 'The word has been deleted.', 'success');
           })
-          .catch();
+          .catch(error => {
+            // eslint-disable-next-line no-console
+            console.error(error);
+          });
     },
     saveWords() {
       localStorage.setItem('words', JSON.stringify(this.words));
     },
-
-    // Drag and Drop methods
     onDragStart(index) {
       this.draggedIndex = index;
-
-      // Add global event listeners for drag and drop
       window.addEventListener('dragover', this.onDragOver);
       window.addEventListener('drop', this.onDropGlobal);
     },
@@ -136,9 +154,10 @@ export default {
 
       // Calculate approximate target index based on Y position
       const approximateIndex = Math.floor(relativeY / 80); // assuming 80px per item height
-      const boundedIndex = Math.max(0, Math.min(this.words.length - 1, approximateIndex));
-
-      this.targetIndex = boundedIndex;
+      this.targetIndex = Math.max(
+          0,
+          Math.min(this.words.length - 1, approximateIndex)
+      );
     },
     onDropGlobal() {
       if (this.draggedIndex !== null && this.targetIndex !== null) {
@@ -162,22 +181,8 @@ export default {
     },
     saveWordsThrottled: throttle(function () {
       localStorage.setItem('words', JSON.stringify(this.words));
-    }, 1000)
+    }, 1000),
   },
-  created() {
-    const savedWords = localStorage.getItem('words');
-
-    if (savedWords) {
-      this.words = JSON.parse(savedWords);
-    } else {
-      fetchWords()
-          .then(response => {
-            this.words = response.data;
-            this.saveWords();
-          })
-          .catch();
-    }
-  }
 };
 </script>
 
