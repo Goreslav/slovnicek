@@ -83,7 +83,7 @@ export default {
         addWord(newWordObject)
             .then(response => {
               newWordObject.id = response.data.id;
-              this.words.push(newWordObject);
+              this.words.unshift(newWordObject);
               this.newWord = {word: "", translation: "", description: ""};
               this.saveWords();
               this.$refs.wordModal.close();
